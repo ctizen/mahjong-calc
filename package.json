@@ -2,9 +2,9 @@
   "name": "mahjong-calc",
   "version": "0.1.0",
   "description": "Simple riichi mahjong calculator module",
-  "main": "mahjong.js",
+  "main": "src/mahjong.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/mahjong.spec.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/heilage-nsk/mahjong-calc/issues"
   },
-  "homepage": "https://github.com/heilage-nsk/mahjong-calc"
+  "homepage": "https://github.com/heilage-nsk/mahjong-calc",
+  "devDependencies": {
+    "mocha": "^2.1.0"
+  }
 }
