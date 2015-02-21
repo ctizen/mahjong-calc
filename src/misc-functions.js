@@ -107,52 +107,9 @@ function tileIsNext(left, right) {
     return 1;
 }
 
-function describe(code) {
-    var id = code >> 8;
-    var res = tiles[id];
 
-    if (code & RED) {
-        res = "RED " + res;
-    }
-
-    return res;
-}
-
-function describeMeld(list) {
-    var res;
-
-    if ((list[0] & MELD_MASK) == PAIR) {
-        res = "PAIR OF " + describe(list[1]);
-    }
-    if ((list[0] & MELD_MASK) == PON) {
-        res = "PON OF " + describe(list[1]);
-    }
-    if ((list[0] & MELD_MASK) == KAN) {
-        res = "KAN OF " + describe(list[1]);
-    }
-    if ((list[0] & MELD_MASK) == CHII) {
-        res = "CHII OF " +
-            numbers[numberic(list[1]) - 1] + "-" +
-            numbers[numberic(list[1])] + "-" +
-            numbers[numberic(list[1]) + 1] +
-            " OF " + suits[suit(list[1])];
-    }
-    if ((list[0] & MELD_MASK) == KOKUSHI_MUSOU) {
-        return "KOKUSHI MUSOU";
-    }
-
-    if (!res) {
-        return "UNK";
-    }
-
-    if (!(list[0] & CLOSED)) {
-        res = "OPEN " + res;
-    }
-
-    return res;
-}
 function describeCombination(list) {
-    return list.map(describeMeld).join(", ");
+    return list.map(describeTileSet).join(", ");
 }
 
 function id(code) {

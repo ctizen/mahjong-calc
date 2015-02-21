@@ -96,6 +96,65 @@ Hand.prototype.waitKind = function (code, combination) {
     return kind;
 };
 
+
+function handFromText(text) {
+    var tokens = text.match(/([psm][1-9]|c[rwg]|w[sewn])/gi);
+    var hand = new Hand;
+
+    for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i].toLowerCase();
+        var a = token[0], b = token[1];
+        var res;
+
+        if (a == 'p') {
+            res = 8 + parseInt(b);
+        }
+        else if (a == 's') {
+            res = 17 + parseInt(b);
+        }
+        else if (a == 'm') {
+            res = -1 + parseInt(b);
+        }
+        else if (a == 'w' && b == 'e') {
+            res = 27;
+        }
+        else if (a == 'w' && b == 's') {
+            res = 28;
+        }
+        else if (a == 'w' && b == 'w') {
+            res = 29;
+        }
+        else if (a == 'w' && b == 'n') {
+            res = 30;
+        }
+        else if (a == 'c' && b == 'w') {
+            res = 31;
+        }
+        else if (a == 'c' && b == 'g') {
+            res = 32;
+        }
+        else if (a == 'c' && b == 'r') {
+            res = 33;
+        }
+        else {
+            res = -1;
+        }
+
+        hand.add(res << 8);
+    }
+
+    return hand;
+}
+
+/*
+ Как это должно использоваться:
+ var comb = hand.toHand().valid();
+
+ calculateFu(comb, hand.toHand()); // вывод списка по фу
+ calculateHan(comb, hand.toHand()); // вывод списка по ханам, если вернуло отрицательное значение - значит якуман или не один.
+
+ */
+
 Hand.prototype.valid = function () {
     var i;
     var list = this.valid_helper(0, 0, 0, this.melds.length, []);
@@ -137,9 +196,18 @@ Hand.prototype.valid = function () {
 };
 
 /*
+ TODO: это код разбиения на сеты
+
  * Mask bits:
  * 0-14 marks whether this tile is used for chii and
  *      should be ignored.
+ *
+ * Функция рекурсивна.
+ * start - начальная позиция
+ * mask -
+ * pairs - количество пар
+ * melds - количество тацу
+ * desc - массив с итоговым описанием
  */
 
 Hand.prototype.valid_helper = function (start, mask, pairs, melds, desc) {
@@ -238,53 +306,3 @@ Hand.prototype.valid_helper = function (start, mask, pairs, melds, desc) {
 
     return result;
 };
-
-function handFromText(text) {
-    var tokens = text.match(/([psm][1-9]|c[rwg]|w[sewn])/gi);
-    var hand = new Hand;
-
-    for (var i = 0; i < tokens.length; i++) {
-        var token = tokens[i].toLowerCase();
-        var a = token[0], b = token[1];
-        var res;
-
-        if (a == 'p') {
-            res = 8 + parseInt(b);
-        }
-        else if (a == 's') {
-            res = 17 + parseInt(b);
-        }
-        else if (a == 'm') {
-            res = -1 + parseInt(b);
-        }
-        else if (a == 'w' && b == 'e') {
-            res = 27;
-        }
-        else if (a == 'w' && b == 's') {
-            res = 28;
-        }
-        else if (a == 'w' && b == 'w') {
-            res = 29;
-        }
-        else if (a == 'w' && b == 'n') {
-            res = 30;
-        }
-        else if (a == 'c' && b == 'w') {
-            res = 31;
-        }
-        else if (a == 'c' && b == 'g') {
-            res = 32;
-        }
-        else if (a == 'c' && b == 'r') {
-            res = 33;
-        }
-        else {
-            res = -1;
-        }
-
-        hand.add(res << 8);
-    }
-
-    return hand;
-}
-
