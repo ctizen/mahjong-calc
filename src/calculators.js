@@ -1,3 +1,4 @@
+var _ = require('lodash');
 
 function calculateFu(combination,hand){
     var description=[["Base score",20]];
@@ -68,7 +69,9 @@ function calculateFu(combination,hand){
             description.push([capitalize(waits[wait])+" wait",2]);
     }
 
-    var sum=description.fold(0,plus);
+    var sum = _.reduce(description, function(sum, element) {
+        return sum + element[1];
+    }, 0);
     var rounded=Math.ceil(sum/10)*10;
 
     if(sum!=rounded)
@@ -88,7 +91,10 @@ function calculateYaku(combination,hand){
     if(hand.lastDraw)
         var wait=hand.waitKind(hand.lastDraw,combination);
 
-    var allTiles=hand.melds.fold(hand.tiles.slice(),function(a,b){return a.concat(b[2])}).sort(ns);
+    var allTiles = _.reduce(hands.melds, function(result, element) {
+        return result.concat(element[2]);
+    }, hand.tiles.slice());
+    allTiles = allTiles.sort(ns);
 
     var pairs=0;
     var chiis=0;
@@ -172,11 +178,15 @@ function calculateYaku(combination,hand){
         return [value,[[text,value]]];
     }
 
-    var greens=allTiles.fold(0,function(a,b){return isGreen(b)?a+1:a;});
+    var greens = _.reduce(allTiles, function(result, element) {
+        return result + (isGreen(element) ? 1 : 0);
+    }, 0);
     if(greens==allTiles.length)
         description.push(["ALL GREEN",-1]);
 
-    var allSameSuit=allTiles.fold(suit(allTiles[0]),function(a,b){return suit(b)==a?a:-1;});
+    var allSameSuit = _.reduce(allTiles, function(result, element) {
+        return suit(element) == result ? result : -1;
+    }, suit(allTiles[0]));
     if(allSameSuit!=-1 && allSameSuit!=HONORS){
         var extra_tile=-1;
         for(i=0;i<CHUUREN_POOTOO.length;i++){
@@ -225,7 +235,9 @@ function calculateYaku(combination,hand){
             ["THIRTEEN ORPHANS",-1]);
 
 
-    var sum=description.fold(0,plus);
+    var sum = _.reduce(description, function(sum, element) {
+        return sum + element[1];
+    }, 0);
     if(sum!=0) return [sum,description];
 
     if(all_closed && !hand.ron)
@@ -240,11 +252,15 @@ function calculateYaku(combination,hand){
     if(all_closed && !pair_is_special && wait==WAIT_TWO_SIDED && pons==0 && kans==0)
         description.push(["NO-POINTS HAND",1]);
 
-    var terminals=allTiles.fold(0,function(a,b){return isTerminal(b)?a+1:a;});
+    var terminals = _.reduce(allTiles, function(result, element) {
+        return isTerminal(element) ? result+1 : result;
+    }, 0);
     if(terminals==0)
         description.push(["ALL SIMPLES",1]);
 
-    var doubleChiis=chiiCounts.fold(0,function(a,b){if(b==2) a+=1; return a;});
+    var doubleChiis= _.reduce(chiiCounts, function(result, element) {
+        return element == 2 ? result+1 : result;
+    }, 0);
     if(doubleChiis==1 && all_closed)
         description.push(["ONE SET OF IDENTICAL SEQUENCES",1]);
 
@@ -320,7 +336,9 @@ function calculateYaku(combination,hand){
         description.push(["TWO SETS OF IDENTICAL SEQUENCES",3]);
 
 
-    var tripleChiis=chiiCounts.fold(0,function(a,b){if(b==3) a+=1; return a;});
+    var tripleChiis= _.reduce(chiiCounts, function(result, element) {
+        return element == 3 ? result+1 : result;
+    }, 0);
     if(tripleChiis==1)
         description.push(["ONE SUIT TRIPLE SEQUENCE",2]);
 
@@ -330,20 +348,28 @@ function calculateYaku(combination,hand){
     });
 
     if(description.length>0){
-        var redTiles=allTiles.fold(0,function(a,b){if(b&RED) a+=1; return a;});
+        var redTiles= _.reduce(allTiles, function(result, element) {
+            return (element & RED) ? result+1 : result;
+        }, 0);
         if(redTiles>0)
             description.push(["RED TILES",redTiles]);
 
 
         var doras=hand.dora.map(function(a){return type(getDora(a))});
-        var doraTiles=allTiles.fold(0,function(a,tile){
-            return a+doras.fold(0,function(b,dora){if(type(tile)==dora) b++; return b;});
-        });
+
+        var doraTiles= _.reduce(allTiles, function(result, outerElement) {
+            return result + _.reduce(doras, function(result, element) {
+                return (type(outerElement) == element) ? result+1 : result;
+            }, 0);
+        }, 0);
+
         if(doraTiles>0)
             description.push(["DORA",doraTiles]);
     }
 
-    var sum=description.fold(0,plus);
+    var sum = _.reduce(description, function(sum, element) {
+        return sum + element[1];
+    }, 0);
 
     return [sum,description];
 }

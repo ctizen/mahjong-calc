@@ -18,5 +18,8 @@
   "homepage": "https://github.com/heilage-nsk/mahjong-calc",
   "devDependencies": {
     "mocha": "^2.1.0"
+  },
+  "dependencies": {
+    "lodash": "^3.3.0"
   }
 }

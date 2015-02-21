@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 function SetHand(){
     this.wait=new Array;
     this.valid=new Array;
@@ -77,15 +79,18 @@ SetHand.prototype.addMeld=function(kind,meld,events){
     this.changeWait();
     this.refresh();
 }
-SetHand.prototype.removeMeld=function(meldTile){
 
+SetHand.prototype.removeMeld=function(meldTile){
+    var self = this;
     for(var i=0;i<this.melds.length;i++){
         var entry=this.melds[i][1];
         for(var j=0;j<entry.length;j++){
             if(entry[j]==meldTile){
                 for(var z=0;z<entry.length;z++)
                     entry[z].fadeOut()
-                this.melds.remove(this.melds[i]);
+                _.remove(this.melds, function(element) {
+                    return element == self.melds[i];
+                });
 
                 this.changeWait();
                 this.refresh();

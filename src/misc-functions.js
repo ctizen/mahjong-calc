@@ -1,6 +1,5 @@
 
 function capitalize(s){return s.substr(0,1).toUpperCase()+s.substr(1).toLowerCase()}
-function plus(a,b){return a+b[1]}
 
 function isColor(code){
     var id=code>>8;
