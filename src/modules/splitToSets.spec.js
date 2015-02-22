@@ -21,6 +21,38 @@ describe('Hand set splitter', function() {
         });
     });
 
+    it('should detect the chiitoitsu hand', function() {
+        var hand = makeHand('1p 1p 9m 9m 2s 2s e e wd wd 6m 6m 8s 8s');
+
+        var testHands = [
+            _.clone(hand),
+            _.shuffle(_.clone(hand))
+        ];
+
+        _.each(testHands, function(hand) {
+            var result = splitter(hand);
+            assert.equal(result.sets.length, 0);
+            assert.equal(result.pairs.length, 7);
+            assert.equal(result.isChiitoitsu, true);
+        });
+    });
+
+    it('should detect the ryanpeikou hand', function() {
+        var hand = makeHand('1p 1p 2p 2p 3p 3p e e 5m 5m 6m 6m 7m 7m');
+
+        var testHands = [
+            _.clone(hand),
+            _.shuffle(_.clone(hand))
+        ];
+
+        _.each(testHands, function(hand) {
+            var result = splitter(hand);
+            assert.equal(result.sets.length, 4);
+            assert.equal(result.pairs.length, 1);
+            assert.equal(result.isChiitoitsu, false);
+        });
+    });
+
     it('should detect all pons hand', function() {
         var hand = makeHand('4s 4s 4s 7m 7m 7m e e e 1p 1p 1p 2m 2m'); // 14 tiles
 
