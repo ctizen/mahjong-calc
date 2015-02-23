@@ -265,6 +265,7 @@ describe('Hand set splitter typical cases', function() {
             assert.equal(result.pairs.length, 1);
             assert.equal(result.isChiitoitsu(), false);
             assert.equal(result.isFinishedHand(), true);
+            assert.equal(result.isOpenHand(), false);
         });
     });
 
@@ -275,26 +276,73 @@ describe('Hand set splitter typical cases', function() {
         assert.equal(result.sets.length, 4);
         assert.equal(result.pairs.length, 1);
         assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), false);
     });
 
     it('should detect shuffled all pons hand', function() {
         var hand = makeHand('4s 4s 4s 7m 7m 7m e e e 1p 1p 1p 2m 2m'); // 14 tiles
 
-        result = splitter(_.shuffle(hand));
+        var result = splitter(_.shuffle(hand));
         assert.equal(result.sets.length, 4);
         assert.equal(result.pairs.length, 1);
         assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), false);
     });
 
-    it.skip('should detect sets in open hand', function() {
-        // todo: передать чи/поны в explicitSets
+    it('should detect sets in open hand (1 chi)', function() {
+        var hand = makeHand('e e 3s 4s 5s 6m 6m 6m 7p 8p 9p'); // 11 tiles
+        var result = splitter(hand, [
+            sets.chi([tiles['pin3'], tiles['pin4'], tiles['pin5']], true)
+        ]);
+        assert.equal(result.sets.length, 4);
+        assert.equal(_.reduce(result.sets, function(acc, item) {
+            return acc + (item.opened ? 1 : 0);
+        }, 0), 1); // 1 открытый
+        assert.equal(result.pairs.length, 1);
+        assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), true);
     });
 
-    it.skip('should detect sets in hand with open kan', function() {
-        // todo: передать открытый кан в explicitSets
+    it('should detect sets in open hand (2 pons)', function() {
+        var hand = makeHand('e e 3s 4s 5s 7p 8p 9p'); // 8 tiles
+        var result = splitter(hand, [
+            sets.pon([tiles['sha']], true),
+            sets.pon([tiles['pin3']], true)
+        ]);
+        assert.equal(result.sets.length, 4);
+        assert.equal(_.reduce(result.sets, function(acc, item) {
+            return acc + (item.opened ? 1 : 0);
+        }, 0), 2); // 2 открытых
+        assert.equal(result.pairs.length, 1);
+        assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), true);
     });
 
-    it.skip('should detect sets in hand with closed kan', function() {
-        // todo: передать закрытый кан в explicitSets
+    it('should detect sets in hand with open kan', function() {
+        var hand = makeHand('e e 3s 4s 5s 7p 8p 9p 6m 6m 6m'); // 11 tiles
+        var result = splitter(hand, [
+            sets.kan([tiles['sha']], true)
+        ]);
+        assert.equal(result.sets.length, 4);
+        assert.equal(_.reduce(result.sets, function(acc, item) {
+            return acc + (item.opened ? 1 : 0);
+        }, 0), 1); // 1 открытый
+        assert.equal(result.pairs.length, 1);
+        assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), true);
+    });
+
+    it('should detect sets in hand with closed kan', function() {
+        var hand = makeHand('e e 3s 4s 5s 7p 8p 9p 6m 6m 6m'); // 11 tiles
+        var result = splitter(hand, [
+            sets.kan([tiles['sha']])
+        ]);
+        assert.equal(result.sets.length, 4);
+        assert.equal(_.reduce(result.sets, function(acc, item) {
+            return acc + (item.opened ? 1 : 0);
+        }, 0), 0); // Все закрыты
+        assert.equal(result.pairs.length, 1);
+        assert.equal(result.isFinishedHand(), true);
+        assert.equal(result.isOpenHand(), false);
     });
 });

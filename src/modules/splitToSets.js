@@ -113,15 +113,31 @@ function checkPartialSplit(hand, partialSplit, strict) {
     }
 }
 
-function findPossibleSplits(hand, setList) {
+function findSplitsRecursive(tileSets, hand, partialSplit, possibleSplitsList) {
+    if (partialSplit.length == 5) { // 4sets+1pair
+        if (checkPartialSplit(hand, partialSplit, true)) {
+            possibleSplitsList.push(partialSplit);
+        }
+        return;
+    }
+
+    _.each(tileSets, function(tileSet) {
+        var newPartialSplit = partialSplit.concat([tileSet]);
+        if (!checkPartialSplit(hand, newPartialSplit)) return;
+        findSplitsRecursive(tileSets, hand, newPartialSplit, possibleSplitsList);
+    });
+}
+
+function findPossibleSplits(hand, setList, explicitSets) {
     var possibleSplits = [];
+    explicitSets = explicitSets || [];
 
     // 1) find splits with pairs (chiitoitsu-like hands)
     var pairs = _.filter(setList, function(item) {
         return item.type == sets.TYPES.PAIR;
     });
 
-    var threeTileSets = _.filter(setList, function(item) {
+    var threeTileSets = _.filter(setList.concat(explicitSets), function(item) {
         return item.type != sets.TYPES.PAIR;
     });
 
@@ -129,23 +145,14 @@ function findPossibleSplits(hand, setList) {
         possibleSplits.push(pairs);
     }
 
+    var fullHand = _.clone(hand);
+    _.each(explicitSets, function(item) {
+        fullHand = fullHand.concat(item.getTiles());
+    });
+
     // 2) find splits like 4 sets + 1 pair
     _.each(pairs, function(pair) { // each pair may be a pair or a part of 11123 type, try each one
-        _.each(threeTileSets, function(firstSet) {
-            if (!checkPartialSplit(hand, [pair, firstSet])) return;
-            _.each(threeTileSets, function(secondSet) {
-                if (!checkPartialSplit(hand, [pair, firstSet, secondSet])) return;
-                _.each(threeTileSets, function(thirdSet) {
-                    if (!checkPartialSplit(hand, [pair, firstSet, secondSet, thirdSet])) return;
-                    _.each(threeTileSets, function(fourthSet) {
-                        var possibleSplit = [pair, firstSet, secondSet, thirdSet, fourthSet];
-                        if (checkPartialSplit(hand, possibleSplit, true)) {
-                            possibleSplits.push(possibleSplit);
-                        }
-                    });
-                });
-            });
-        });
+        findSplitsRecursive(threeTileSets, fullHand, explicitSets.concat([pair]), possibleSplits);
     });
 
     possibleSplits = unify(possibleSplits);
@@ -199,15 +206,15 @@ function checkKokushi(hand) {
  *
  * @param hand Состав руки
  * @param explicitSets Открытые и объявленные сеты
+ * @returns ParsedHand
  */
 function splitToSets(hand, explicitSets) {
     var result = new Hand();
-    result.sets = result.sets.concat(explicitSets || []);
 
     // 2) find all possible sequences, triples and pairs
     var foundSeqs = findSequences(hand);
     var foundTriplesAndPairs = findTriplesAndPairs(hand);
-    var possibleSplitVariants = findPossibleSplits(hand, foundSeqs.concat(foundTriplesAndPairs));
+    var possibleSplitVariants = findPossibleSplits(hand, foundSeqs.concat(foundTriplesAndPairs), explicitSets);
 
     if (possibleSplitVariants.length == 0) { // не нашли разбиение
         // проверим, а не кокуши ли

@@ -72,7 +72,7 @@ TileSets = _.extend(TileSets, {
     },
 
     kan: function(tile, opened) {
-        var tset = new TileSet(TileSets.TYPES.PAIR, !!opened);
+        var tset = new TileSet(TileSets.TYPES.KAN, !!opened);
         tset.setTiles([tile, tile, tile, tile]);
         return tset;
     },

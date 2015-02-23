@@ -31,4 +31,12 @@ ParsedHand.prototype.isFinishedHand = function() {
     return this.isKokushi() || this.isChiitoitsu() || (this.sets.length == 4 && this.pairs.length == 1);
 };
 
+ParsedHand.prototype.isOpenHand = function() {
+    if (this.isKokushi() || this.isChiitoitsu()) return false;
+    var openSetsCount = _.reduce(this.sets, function(acc, item) {
+        return acc + (item.opened ? 1 : 0);
+    }, 0);
+    return (openSetsCount > 0);
+};
+
 module.exports = ParsedHand;
