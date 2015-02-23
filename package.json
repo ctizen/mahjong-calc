@@ -4,7 +4,8 @@
   "description": "Simple riichi mahjong calculator module",
   "main": "src/mahjong.js",
   "scripts": {
-    "test": "mocha **/*.spec.js"
+    "test": "mocha '**/*.spec.js'",
+    "coverage": "istanbul cover _mocha -- '**/*.spec.js' -R spec"
   },
   "repository": {
     "type": "git",
