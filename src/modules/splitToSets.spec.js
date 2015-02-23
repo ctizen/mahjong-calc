@@ -194,19 +194,26 @@ describe('Hand set splitter units', function() {
 });
 
 describe('Hand set splitter typical cases', function() {
-    it.skip('should detect the kokushi hand', function() {
+    it('should detect not-ready hand', function() {
+        var hand = makeHand('1p 2p 3p 5m 6m 7m e e e 3s 4s 6s wd wd');
+        var result = splitter(hand);
+
+        assert.equal(result.isFinishedHand(), false);
+    });
+
+    it('should detect the kokushi hand', function() {
         var hand = makeHand('1p 9p 1m 9m 1s 9s e s w n rd wd gd'); // 13 tiles hand
 
         var testHands = [
-            _.clone(hand).push(tiles.pin9),
-            _.clone(hand).splice(5, 0, tiles.ton),
-            _.shuffle(_.clone(hand).push(tiles.chun))
+            makeHand('1p 9p 1m 9m 1s 9s e s w n rd wd gd e'),
+            makeHand('1p 9p 1m 9m 1m 1s 9s e s w n rd wd gd'),
+            _.shuffle(makeHand('1p 9p 1m 9m 1s 9s e s w n rd wd gd e'))
         ];
 
         _.each(testHands, function(hand) {
             var result = splitter(hand);
-            assert.equal(result.sets.length, 0);
-            assert.equal(result.pairs.length, 1);
+            assert.equal(result.isKokushi(), true);
+            assert.equal(result.isFinishedHand(), true);
         });
     });
 
@@ -222,7 +229,8 @@ describe('Hand set splitter typical cases', function() {
             var result = splitter(hand);
             assert.equal(result.sets.length, 0);
             assert.equal(result.pairs.length, 7);
-            assert.equal(result.isChiitoitsu, true);
+            assert.equal(result.isChiitoitsu(), true);
+            assert.equal(result.isFinishedHand(), true);
         });
     });
 
@@ -238,8 +246,8 @@ describe('Hand set splitter typical cases', function() {
             var result = splitter(hand);
             assert.equal(result.sets.length, 4);
             assert.equal(result.pairs.length, 1);
-            assert.equal(result.isChiitoitsu, false);
-//            assert.equal(result.isFinishedHand, true); // TODO
+            assert.equal(result.isChiitoitsu(), false);
+            assert.equal(result.isFinishedHand(), true);
         });
     });
 
@@ -255,8 +263,8 @@ describe('Hand set splitter typical cases', function() {
             var result = splitter(hand);
             assert.equal(result.sets.length, 4);
             assert.equal(result.pairs.length, 1);
-            assert.equal(result.isChiitoitsu, false);
-//            assert.equal(result.isFinishedHand, true); // TODO
+            assert.equal(result.isChiitoitsu(), false);
+            assert.equal(result.isFinishedHand(), true);
         });
     });
 
@@ -266,7 +274,7 @@ describe('Hand set splitter typical cases', function() {
         var result = splitter(hand);
         assert.equal(result.sets.length, 4);
         assert.equal(result.pairs.length, 1);
-//            assert.equal(result.isFinishedHand, true); // TODO
+        assert.equal(result.isFinishedHand(), true);
     });
 
     it('should detect shuffled all pons hand', function() {
@@ -275,6 +283,18 @@ describe('Hand set splitter typical cases', function() {
         result = splitter(_.shuffle(hand));
         assert.equal(result.sets.length, 4);
         assert.equal(result.pairs.length, 1);
-//            assert.equal(result.isFinishedHand, true); // TODO
+        assert.equal(result.isFinishedHand(), true);
+    });
+
+    it.skip('should detect sets in open hand', function() {
+        // todo: передать чи/поны в explicitSets
+    });
+
+    it.skip('should detect sets in hand with open kan', function() {
+        // todo: передать открытый кан в explicitSets
+    });
+
+    it.skip('should detect sets in hand with closed kan', function() {
+        // todo: передать закрытый кан в explicitSets
     });
 });

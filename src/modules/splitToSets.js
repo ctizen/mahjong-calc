@@ -153,7 +153,49 @@ function findPossibleSplits(hand, setList) {
     return possibleSplits;
 }
 
+function checkKokushi(hand) {
+    var counts = countTiles(hand);
+    var isKokushi = true;
+    var hasPair = false;
+    _.each([
+        'pin1',
+        'pin9',
+        'man1',
+        'man9',
+        'sou1',
+        'sou9',
+        'ton',
+        'nan',
+        'sha',
+        'pei',
+        'chun',
+        'haku',
+        'hatsu'
+    ], function(tile) {
+        if (!counts[tile]) isKokushi = false;
+        if (counts[tile] == 2) hasPair = true;
+    });
+
+    return isKokushi && hasPair;
+}
+
 /**
+ * Примерный алгоритм:
+ * 1) Выбираем все тайлы мастей. В худшем случае - вся рука без благородных
+ * 2) Идем в цикле по тайлам. Каждый тайл должен стать первым в переборе, после чего цикл завершается.
+ * 3) Выбран первый тайл. Идем по руке в поисках второго (только следующего!)
+ * Если первый тайл - 8 или 9, то дальше можно не ходить, это уже не чи.
+ * 4) Выбран второй тайл. Идем по руке в поисках третьего.
+ * Если найден третий - ок, исключаем из руки найденное чи и продолжаем с оставшимися тайлами начиная с п.2
+ * 5) Если алгоритм завершен и не осталось больше чи, значит в руке остались только поны.
+ *
+ * - В итоге алгоритма составляется дерево. Дальнейший алгоритм работает с этим деревом.
+ * - При первом обходе дерева сеты дополняются понами (поны детектить проще, чем чи) и парой
+ * - При втором обходе дерева исключаются исходы, в которых остались помеченные тайлы (не входящие в поны, чи и пару)
+ * - При третьем обходе дерева из найденных исходов формируется массив возможных интерпретаций руки
+ *
+ * Этот массив в итоге возвращается, после чего во внешнем коде подается на определитель стоимости руки.
+ * Выбирается тот вариант, где стоимость выше.
  *
  * @param hand Состав руки
  * @param explicitSets Открытые и объявленные сеты
@@ -161,55 +203,27 @@ function findPossibleSplits(hand, setList) {
 function splitToSets(hand, explicitSets) {
     var result = new Hand();
     result.sets = result.sets.concat(explicitSets || []);
-    var counts = countTiles(hand);
-
-    // 0) check for chiitoitsu
-    result.isChiitoitsu = true;
-    _.each(counts, function(value) {
-        if (value != 2) {
-            result.isChiitoitsu = false;
-        }
-    });
-    if (result.isChiitoitsu) {
-        _.each(counts, function(value, key) {
-            result.add(sets.pair(tiles[key]));
-        });
-        return result;
-    }
 
     // 2) find all possible sequences, triples and pairs
     var foundSeqs = findSequences(hand);
     var foundTriplesAndPairs = findTriplesAndPairs(hand);
     var possibleSplitVariants = findPossibleSplits(hand, foundSeqs.concat(foundTriplesAndPairs));
 
-    /*
-        Примерный алгоритм:
-        1) Выбираем все тайлы мастей. В худшем случае - вся рука без благородных
-        2) Идем в цикле по тайлам. Каждый тайл должен стать первым в переборе, после чего цикл завершается.
-        3) Выбран первый тайл. Идем по руке в поисках второго (только следующего!)
-            Если первый тайл - 8 или 9, то дальше можно не ходить, это уже не чи.
-        4) Выбран второй тайл. Идем по руке в поисках третьего.
-            Если найден третий - ок, исключаем из руки найденное чи и продолжаем с оставшимися тайлами начиная с п.2
-        5) Если алгоритм завершен и не осталось больше чи, значит в руке остались только поны.
-
-        - В итоге алгоритма составляется дерево. Дальнейший алгоритм работает с этим деревом.
-        - При первом обходе дерева сеты дополняются понами (поны детектить проще, чем чи) и парой
-        - При втором обходе дерева исключаются исходы, в которых остались помеченные тайлы (не входящие в поны, чи и пару)
-        - При третьем обходе дерева из найденных исходов формируется массив возможных интерпретаций руки
-
-        Этот массив в итоге возвращается, после чего во внешнем коде подается на определитель стоимости руки.
-        Выбирается тот вариант, где стоимость выше.
-     */
-
-    if (possibleSplitVariants.length == 1) { // нашли единственное возможное разбиение - его и возвращаем.
+    if (possibleSplitVariants.length == 0) { // не нашли разбиение
+        // проверим, а не кокуши ли
+        if (checkKokushi(hand)) {
+            result.isSpecial = true;
+        }
+        return result; // вернули пустую руку
+    } else if (possibleSplitVariants.length == 1) { // нашли единственное возможное разбиение - его и возвращаем.
         _.each(possibleSplitVariants[0], function(item) {
             result.add(item);
         });
 
         return result;
+    } else {
+        return possibleSplitVariants;
     }
-
-    return possibleSplitVariants;
 }
 
 module.exports = splitToSets;
