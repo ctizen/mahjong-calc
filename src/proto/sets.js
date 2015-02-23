@@ -1,12 +1,8 @@
 var _ = require('lodash');
 
 function TileSet(type, opened) {
-    if (this instanceof TileSet) {
-        this.type = type;
-        this.opened = opened;
-    } else {
-        return new TileSet(type, opened);
-    }
+    this.type = type;
+    this.opened = opened;
 }
 
 TileSet.prototype.toString = function() {
