@@ -2,6 +2,7 @@ var _ = require('lodash');
 var sets = require('../proto/sets');
 
 function ParsedHand() {
+    this.winningTile = null;
     this.sets = [];
     this.pairs = [];
     this.isSpecial = false; // neither chiitoitsu nor 4sets+1pair
@@ -37,6 +38,10 @@ ParsedHand.prototype.isOpenHand = function() {
         return acc + (item.opened ? 1 : 0);
     }, 0);
     return (openSetsCount > 0);
+};
+
+ParsedHand.prototype.setWinningTile = function(tile) {
+    this.winningTile = tile;
 };
 
 module.exports = ParsedHand;
