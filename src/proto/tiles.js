@@ -92,7 +92,22 @@ Tiles = _.extend(Tiles, {
 
     'chun': Tile(Tiles.SUITS.DRAGON, Tiles.DRAGONS.CHUN),
     'haku': Tile(Tiles.SUITS.DRAGON, Tiles.DRAGONS.HAKU),
-    'hatsu': Tile(Tiles.SUITS.DRAGON, Tiles.DRAGONS.HATSU)
+    'hatsu': Tile(Tiles.SUITS.DRAGON, Tiles.DRAGONS.HATSU),
+
+    isSuit: function(tile) {
+        if (_.isObject(tile)) {
+            return tile.suit == Tiles.SUITS.MAN || tile.suit == Tiles.SUITS.PIN || tile.suit == Tiles.SUITS.SOU;
+        } else if (_.isString(tile)) {
+            return !!tile.match(/man\d|pin\d|sou\d/);
+        }
+    },
+    isHonor: function(tile) {
+        if (_.isObject(tile)) {
+            return tile.suit == Tiles.SUITS.DRAGON || tile.suit == Tiles.SUITS.WIND;
+        } else if (_.isString(tile)) {
+            return _.contains(['chun', 'haku', 'hatsu', 'ton', 'nan', 'sha', 'pei'], tile);
+        }
+    }
 });
 
 module.exports = Tiles;

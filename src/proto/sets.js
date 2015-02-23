@@ -32,11 +32,15 @@ TileSet.prototype.toString = function() {
         );
     }
 
-    return description;
+    return description.join(' ');
 };
 
 TileSet.prototype.setTiles = function(tilesList) {
     this.tilesList = tilesList;
+};
+
+TileSet.prototype.getTiles = function() {
+    return this.tilesList;
 };
 
 var TileSets = {
@@ -74,7 +78,7 @@ TileSets = _.extend(TileSets, {
     },
 
     chi: function(tileList, opened) {
-        var tset = new TileSet(TileSets.TYPES.PAIR, !!opened);
+        var tset = new TileSet(TileSets.TYPES.CHI, !!opened);
         tset.setTiles(tileList);
         return tset;
     }
