@@ -3,6 +3,7 @@
 Global dependencies:
 - Mocha
 - Istanbul
+- Typescript
 
 Здесь когда-нибудь будет годный модуль :)
 

@@ -4,7 +4,7 @@
   "description": "Simple riichi mahjong calculator module",
   "main": "src/mahjong.js",
   "scripts": {
-    "test": "mocha '**/*.spec.js'",
+    "test": "mocha --compilers ts:typescript-require '**/*.spec.ts'",
     "coverage": "istanbul cover _mocha -- '**/*.spec.js' -R spec"
   },
   "repository": {
@@ -18,8 +18,16 @@
   },
   "homepage": "https://github.com/heilage-nsk/mahjong-calc",
   "devDependencies": {
+    "browserify": "^9.0.3",
     "chai": "^2.1.1",
-    "mocha": "^2.1.0"
+    "gulp": "^3.8.11",
+    "gulp-mocha": "^2.0.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-sourcemaps": "^1.5.0",
+    "gulp-typescript-compiler": "^1.0.1",
+    "mocha": "^2.1.0",
+    "typescript-require": "^0.2.8",
+    "vinyl-transform": "^1.0.0"
   },
   "dependencies": {
     "lodash": "^3.3.0"
