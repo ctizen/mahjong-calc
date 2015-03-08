@@ -40,6 +40,9 @@ ParsedHand.prototype.isOpenHand = function() {
     return (openSetsCount > 0);
 };
 
+/**
+ * @param {Tile} tile
+ */
 ParsedHand.prototype.setWinningTile = function(tile) {
     this.winningTile = tile;
 };
